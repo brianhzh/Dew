@@ -1,0 +1,23 @@
+{
+  "decision_id": "fix-recurring",
+  "mode": "preview",
+  "phase": "after_purchase",
+  "severity": "recurring",
+  "effects": { "frost": false, "hail": false, "lightning": false, "shake": false, "drought": 0, "rain": false, "wind": 0.15, "falling_leaves": false, "pests": true },
+  "plant_before": { "vigor": 100, "maturity": 100, "baseline": 100, "reserve_weeks": 8 },
+  "plant_after": { "vigor": 100, "maturity": 86, "baseline": 92, "reserve_weeks": 7.4 },
+  "plant_delta": { "vigor_delta": 0, "maturity_delta": -14, "baseline_delta": -8 },
+  "pests": { "active": true, "kind": "aphids" },
+  "reserve_weeks_before": 8,
+  "reserve_weeks_after": 7.4,
+  "reserve_material": false,
+  "healthy": false,
+  "healthy_score": 0,
+  "trophy_awarded": false,
+  "healthy_saves_count": 0,
+  "goal_ref": { "recommended_goal_id": "goal-short", "reason_code": "closest" },
+  "narrative_seed": { "severity": "recurring", "metaphor_key": "pests", "reserve_weeks_after": 7.4 },
+  "opportunity_items": null,
+  "amount": 23,
+  "category": "subscription"
+}

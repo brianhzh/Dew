@@ -1,0 +1,29 @@
+{
+  "persona": {
+    "name": "Jordan",
+    "role": "Freshman, first year on your own",
+    "income_mo": 1500,
+    "savings": 5000,
+    "age": 18,
+    "interests": ["music", "travel", "campus"],
+    "cost_of_living": "college town",
+    "display_locked": true
+  },
+  "plant_state": {
+    "vigor": 100,
+    "maturity": 100,
+    "baseline": 100,
+    "reserve_weeks": 8,
+    "effects": { "drought": 0 },
+    "pests": { "active": false }
+  },
+  "goals": [
+    { "id": "goal-short", "horizon": "short", "label": "Weekend trip", "target_amount": 400, "current_amount": 120, "pct_complete": 0.3, "stage": 1, "harvested": false },
+    { "id": "goal-mid", "horizon": "mid", "label": "Sublet deposit", "target_amount": 900, "current_amount": 150, "pct_complete": 0.17, "stage": 0, "harvested": false },
+    { "id": "goal-long", "horizon": "long", "label": "Graduate buffer", "target_amount": 5000, "current_amount": 480, "pct_complete": 0.1, "stage": 0, "harvested": false }
+  ],
+  "subscriptions": [],
+  "trophies": [],
+  "healthy_saves_count": 0,
+  "stage_label": "First semester"
+}

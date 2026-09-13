@@ -1,0 +1,3 @@
+data: {"text":"If the paycheck stops, the ring empties in eight weeks. The sky dries first."}
+
+event: done

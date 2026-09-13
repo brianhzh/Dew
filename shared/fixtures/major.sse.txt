@@ -1,0 +1,3 @@
+data: {"text":"The storm hits the canopy. The soil will remember this longer than the receipt."}
+
+event: done
