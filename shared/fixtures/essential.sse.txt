@@ -1,3 +1,0 @@
-data: {"text":"Tuition does not bruise the leaves. The reserve is quieter. That is all."}
-
-event: done

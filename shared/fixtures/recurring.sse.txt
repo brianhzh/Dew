@@ -1,3 +1,0 @@
-data: {"text":"Aphids settle in for the month. They will stay as long as the charge does."}
-
-event: done

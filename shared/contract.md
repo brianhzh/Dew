@@ -1,221 +1,160 @@
-# Dew API contract (A draft — B amends)
+# Dew API contract
 
-**Status:** written by Person A because B was not in the room. B: read this, change what you must, commit this file alone, tell A out loud.
+Post purchase only, voice driven. The user logs a purchase they already made
+(by voice via WisprFlow, or typed). The backend reads the amount, decides the
+effect on vigor and maturity, and picks one plant effect. No preview, no
+what-if, no skip, no reserve, no fake bank feed.
 
-**Product shipped this 12h:** after-purchase only. User picks or logs a spend. You return `plant_after` + `effects`. Client draws the tree. Goal = healthiest tree.
+Base URL (dev): `http://localhost:8000`. CORS open. JSON bodies.
+Ground truth: `/shared/fixtures/*.json`, one per case, each `{case, note, request, response, narrative}`.
+Constants: `/shared/constants.json`. Seed persona: `/shared/seed.json`.
+Market projection (real Snowflake Monte Carlo on QQQ): `/shared/mc_percentiles.json`.
 
-**Parked:** `phase: before_purchase` and `opportunity_items`. Keep the fields optional so we can light them later. Do not require them for L1.
-
----
-
-## Persona (both sides seed this)
-
-| Field | Value |
-| --- | --- |
-| `income_mo` | 1500 |
-| `savings` | 5000 |
-| `display_locked` | true |
-| Starting tree | fully healthy: `vigor` 100, `maturity` 100, `baseline` 100 |
-
-B also decides starting `reserve_weeks`. Fixtures use `8` until you replace it.
+Two layers: the response object carries the instant numbers the plant reacts
+off (including a `render` block ready for the plant renderer), then
+`GET /narrative/{decision_id}` streams the prose line separately.
 
 ---
 
-## Endpoints
+## 1. POST /parse — voice transcript to fields
 
-| Method | Path | A uses for |
-| --- | --- | --- |
-| `GET` | `/state` | Home, Ledger |
-| `POST` | `/decision` | Preview / commit / skip / whatif |
-| `POST` | `/action` | cancel sub, accept recovery, assign `goal_id` |
-| `GET` | `/narrative/{decision_id}` | Aftermath SSE |
+The WisprFlow transcript in, structured purchase fields out. Parse only, nothing
+is applied. The frontend confirms or corrects, then posts /purchase.
 
----
-
-## Enums
-
-```
-mode:        preview | commit | skip | whatif | cancel
-phase:       after_purchase          (before_purchase parked)
-severity:    minor | moderate | major | essential | recurring | skip | cancel | drought
-horizon:     short | mid | long
-category:    coffee | impulse | electronics | subscription | tuition | groceries | rent | transit | phone | other
+```json
+// request
+{ "user_id": "demo-1", "text": "I spent 250 on headphones at Best Buy" }
+// response
+{ "amount": 250, "category": "electronics", "merchant": "Best Buy",
+  "is_recurring": false, "is_essential": false, "review": false,
+  "transcript": "I spent 250 on headphones at Best Buy" }
 ```
 
----
+- Essentials the user names (rent, groceries, transit, phone bill, tuition...) come
+  back `is_essential: true`. Subscriptions (monthly, membership, netflix...) come
+  back `is_recurring: true`. An explicit word ("splurge", "needed it") overrides
+  the category guess.
+- `review: true` when the amount is missing or the category is unknown, so the
+  frontend should ask before logging.
 
-## `POST /decision` request
+## 2. POST /purchase — a purchase was made
+
+```json
+{ "user_id": "demo-1", "amount": 250, "category": "electronics",
+  "merchant": "Best Buy", "is_recurring": false, "is_essential": false }
+```
+
+Applies the deltas to the plant, subtracts the amount from the buffer, logs a
+transaction and a decision. Recurring purchases add a subscription and its aphids.
+Effect mapping:
+
+| purchase | bucket | effect | plant |
+|---|---|---|---|
+| essential (`is_essential`) | `neutral` | `none` | no weather ever |
+| small one-off | `small` | `cold_spell` | frost |
+| big one-off | `big` | `hailstorm` | hail, lightning, shake |
+| subscription (`is_recurring`) | `recurring` | `aphids` | pests, lower baseline |
+
+Small vs big is a severity threshold (`buckets.big_min`). Vigor damage scales
+continuously, so a $15 and a $60 are both a cold spell but the $60 hurts more.
+
+## 3. POST /cancel — drop a subscription
+
+```json
+{ "user_id": "demo-1", "merchant": "DashPass" }
+```
+
+Removes the subscription and its aphids, restores the baseline, nudges maturity
+up. Returns the response object with bucket `cancel`, effect `aphids_leave`,
+`effects.pests_delta` = negative of the aphids that left. `404` if no such sub.
+
+## 4. The response object — /purchase and /cancel both return this
 
 ```json
 {
-  "mode": "preview",
-  "phase": "after_purchase",
-  "amount": 250,
-  "category": "electronics",
-  "flags": { "essential": false, "recurring": false },
-  "goal_id": null,
-  "whatif": { "income_stops": false }
+  "decision_id": "d-101",
+  "severity_bucket": "big",
+  "effect": "hailstorm",
+  "direction": "damaging",
+  "vigor_before": 72.0, "vigor_after": 42.0, "vigor_delta": -30.0,
+  "baseline": 72.0,
+  "maturity_before": 41.0, "maturity_after": 30.9, "maturity_delta": -10.1,
+  "concrete_unit": "sets your next bloom back about 7 weeks",
+  "effects": { "storm": 1.0, "wind": 1.1, "rain": 0, "cold": 0, "pests_delta": 0 },
+  "leaves_fall": 34,
+  "flash_shake": true,
+  "projection": { "p10": 0.2, "p50": 1.02, "p90": 2.19, "horizon_months": 48 },
+  "render": {
+    "vigor": 42.0, "maturity": 30.9, "baseline": 72.0, "pestsActive": false,
+    "effects": { "frost": false, "hail": true, "lightning": true, "shake": true,
+      "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 1.1 }
+  }
 }
 ```
 
----
+- `severity_bucket`: `neutral | small | big | recurring | cancel`.
+- `effect`: `none | cold_spell | hailstorm | aphids | aphids_leave`.
+- `maturity_delta` is the market opportunity cost of the money (amount plus the
+  growth it would have earned over the degree horizon at the projection p50).
+  A big buy is a real setback, a subscription drags for months, essentials are 0.
+- `projection` is the live p10 p50 p90 cumulative return from the Snowflake Monte
+  Carlo. The p10 to p90 spread is the uncertainty band.
+- **`render` is the block the plant renderer consumes directly** (see integration).
 
-## `POST /decision` response (layer-1)
-
-You compute every number. A only animates `plant_before` → `plant_after` and plays `effects`.
-
-```json
-{
-  "decision_id": "fix-major",
-  "mode": "preview",
-  "phase": "after_purchase",
-  "severity": "major",
-  "effects": {
-    "frost": false,
-    "hail": true,
-    "lightning": true,
-    "shake": true,
-    "drought": 0,
-    "rain": false,
-    "wind": 0.7,
-    "falling_leaves": true,
-    "pests": false
-  },
-  "plant_before": { "vigor": 100, "maturity": 100, "baseline": 100, "reserve_weeks": 8 },
-  "plant_after":  { "vigor": 74, "maturity": 100, "baseline": 100, "reserve_weeks": 6.1 },
-  "plant_delta":  { "vigor_delta": -26, "maturity_delta": 0, "baseline_delta": 0 },
-  "pests": { "active": false },
-  "reserve_weeks_before": 8,
-  "reserve_weeks_after": 6.1,
-  "reserve_material": true,
-  "healthy": false,
-  "healthy_score": 0,
-  "trophy_awarded": false,
-  "healthy_saves_count": 0,
-  "goal_ref": { "recommended_goal_id": "goal-short", "reason_code": "closest" },
-  "narrative_seed": { "severity": "major", "metaphor_key": "storm", "reserve_weeks_after": 6.1 },
-  "opportunity_items": null
-}
-```
-
-### Rules
-
-- One-time non-essential → hit **vigor**. Sub (`recurring`) → **pests** for the duration + hit **maturity**.
-- Essentials (`tuition`, rent, groceries, transit, phone) → `severity: essential`, **no weather**, `healthy: false` if they skip.
-- Skip a **non-essential** → you set `healthy` / `healthy_score`. A shows trophies when you say `trophy_awarded`.
-- `opportunity_items`: omit or `null` this 12h.
-
----
-
-## `GET /state`
+## 5. GET /state — hydration
 
 ```json
 {
-  "persona": {
-    "name": "Jordan",
-    "role": "Freshman, first year on your own",
-    "income_mo": 1500,
-    "savings": 5000,
-    "age": 18,
-    "interests": ["music", "travel", "campus"],
-    "cost_of_living": "college town",
-    "display_locked": true
-  },
-  "plant_state": {
-    "vigor": 100,
-    "maturity": 100,
-    "baseline": 100,
-    "reserve_weeks": 8,
-    "effects": { "drought": 0 },
-    "pests": { "active": false }
-  },
-  "goals": [
-    { "id": "goal-short", "horizon": "short", "label": "Weekend trip", "target_amount": 400, "current_amount": 120, "pct_complete": 0.3, "stage": 1, "harvested": false },
-    { "id": "goal-mid", "horizon": "mid", "label": "Sublet deposit", "target_amount": 900, "current_amount": 150, "pct_complete": 0.17, "stage": 0, "harvested": false },
-    { "id": "goal-long", "horizon": "long", "label": "Graduate buffer", "target_amount": 5000, "current_amount": 480, "pct_complete": 0.1, "stage": 0, "harvested": false }
-  ],
+  "persona": { "user_id": "demo-1", "monthly_income": 1600, "essentials_monthly": 1250,
+    "savings_target_monthly": 150, "liquid_buffer": 1900, "horizon_months": 48 },
+  "goals": [ { "goal_id": "g-short", "term": "short", "name": "Reading-week trip",
+    "amount": 400, "progress": 120 } ],
+  "plant": { "vigor": 72.0, "baseline": 72.0, "maturity": 41.0, "pests": [], "pest_count": 0 },
   "subscriptions": [],
-  "trophies": [],
-  "healthy_saves_count": 0,
-  "stage_label": "First semester"
+  "projection": { "p10": 0.2, "p50": 1.02, "p90": 2.19, "horizon_months": 48 },
+  "render": { "vigor": 72.0, "maturity": 41.0, "baseline": 72.0, "pestsActive": false,
+    "effects": { "frost": false, "hail": false, "...": "idle", "wind": 0.08 } }
 }
 ```
 
+Two lazy drifts run each request: vigor eases toward baseline at 0.12/day, and
+maturity creeps up a little each day (steady saving grows the plant).
+
+## 6. GET /narrative/{decision_id} — SSE
+
+`data:` chunks then `event: done`. Neutral decisions emit `done` immediately.
+Fallback bank today; Cortex can slot in behind it later. `404` on unknown id.
+
+## 7. Utility
+
+`POST /reset` reloads the seed. `GET /health` returns `{"ok": true}`.
+
 ---
 
-## `POST /action`
+## Frontend integration (linking A's client to this backend)
 
-```json
-{ "type": "cancel_subscription", "subscription_id": "sub-1" }
-{ "type": "skip", "decision_id": "…", "goal_id": "goal-short" }
-{ "type": "accept_recovery", "decision_id": "…" }
+The reusable core, `client/src/plant/plantEngine.ts`, takes exactly the shape in
+`render`. So one line links a purchase to the plant:
+
+```ts
+const res = await postPurchase(fields)   // POST /purchase
+plantEngine.apply(res.render)            // render is already EngineInput shaped
 ```
 
-Response: same as a compact `/state` plus the layer-1 fields you changed.
+`render.effects` uses the renderer's boolean flags (frost / hail / lightning /
+shake / rain / falling_leaves / pests + drought, wind), so no client side mapping
+is needed. `render.pestsActive` keeps the aphids while a subscription is live.
 
----
+What the client still needs to change from the scaffold, because this backend is
+the post-purchase / voice design, not the old bank-feed design:
 
-## SSE `GET /narrative/{decision_id}`
-
-```
-data: {"text":"The storm hits the canopy. The soil will remember this longer than the receipt."}
-
-event: done
-```
-
-No new dollars or percents in the stream. Fallback bank lives on B; A also has local copies in `/shared/fixtures/*.sse.txt`.
-
----
-
-## Eight fixture cases
-
-Files in `/shared/fixtures/`. A’s `OFFLINE` client uses these until `VITE_OFFLINE=false`.
-
-| File | Demo beat |
-| --- | --- |
-| `minor.json` | ~$15 coffee — frost, vigor down |
-| `moderate.json` | ~$60 impulse — partial storm |
-| `major.json` | ~$250 headphones — hail + lightning |
-| `essential.json` | tuition — no weather |
-| `recurring.json` | $23/mo sub — pests, maturity down |
-| `skip.json` | skip non-essential — rain, `healthy: true` |
-| `cancel.json` | cancel sub — aphids leave |
-| `whatif-drought.json` | income stops |
-
-Numbers in those files are **placeholders**. Replace them with your model; keep the keys.
-
----
-
-## Provisional plant model (A ships this; B replaces it)
-
-A now runs a local fake bank in `/client` so the demo works without Snowflake. Same response keys as layer-1. When your fake bank is up, set `VITE_OFFLINE=false` and compute these in SQL / Snowpark.
-
-Jordan’s books:
-
-| Field | Value |
-| --- | --- |
-| `income_mo` | 1500 |
-| `cash` (savings) | 5000 |
-| `fixed_bills_mo` | 930 |
-| `discretionary_mo` | 570 |
-| `weekly_disc` | `discretionary_mo / 4.345` ≈ 131 |
-| starting reserve | 8 weeks (game stat, not cash / weekly) |
-
-**One-time non-essential** (coffee / impulse / electronics):
-
-- `severity`: amount ≤ 20 minor, ≤ 70 moderate, else major
-- `vigor_hit = 4 + 28 * amount / (amount + 80)` → 15≈8, 60≈16, 250≈26
-- `weeks_lost = amount / weekly_disc`
-- weather from `constants.severity_effects`
-
-**Essential** (tuition, rent, groceries, transit, phone): no weather, no vigor; `weeks_lost *= 0.2`
-
-**Recurring**: pests on; `maturity_hit = clamp(round(amount * 12 / income_mo * 75), 6, 28)`; `weeks_lost = amount * 3 / weekly_disc`
-
-**Skip** a want: rain; vigor +8 (cap 100); restore half the weeks the buy would have cost; cash unchanged
-
-**User-assigned importance** (not guessed from dollars when they tagged it): `essential` | `small_medium` | `subscription` | `large`. Setup is first. See [`WARRANT.md`](./WARRANT.md).
-
-**Warranted small-medium:** after `clean_streak >= 3` (skip or pay essential). Soft vigor (35%), rain, `warranted: true`, streak resets. Large or a new sub is a bad choice and zeros the streak.
-
-B: keep the keys, swap the formula. Don't make A invent a second model.
+- **Voice:** WisprFlow transcript to `POST /parse`, show the fields for confirm or
+  correction (the user assigns essential vs not), then `POST /purchase`.
+- **Point `api.ts` at** `/parse`, `/purchase`, `/cancel`, `/state` and feed
+  `response.render` to the renderer. Drop the `mode: 'preview'` / `/decision` call.
+- **Remove old-design pieces** with no backend behind them: the Consider / Preview
+  / WhatIf screens, and the `reserve_weeks`, `warranted`, `clean_streak`,
+  `drought`, `skip` fields in `types.ts`. Keep Home, Aftermath, Ledger, PlantCanvas.
+- **Fixtures** are regenerated to this design's cases (essential, small_coffee,
+  small_impulse, big_headphones, subscription, cancel), each with a `render` block.
+  Update the imports in `api.ts` to these names.
