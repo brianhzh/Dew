@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useBank } from '../bank/BankContext.tsx'
+import { useBank, currentRender } from '../bank/BankContext.tsx'
 import { getNarrative } from '../api'
 import { PlantCanvas } from '../plant/PlantCanvas.tsx'
 import { PlantStats } from '../PlantStats.tsx'
@@ -15,7 +15,8 @@ const effectLabels: Record<EffectName, string> = {
 }
 
 export function Aftermath() {
-  const { last } = useBank()
+  const bank = useBank()
+  const { last } = bank
   const [narrative, setNarrative] = useState('')
 
   useEffect(() => {
@@ -44,11 +45,11 @@ export function Aftermath() {
     <section>
       <p className="kicker">Aftermath</p>
       <h1>{effectLabels[last.effect]}</h1>
-      <PlantCanvas {...last.render} />
+      <PlantCanvas {...currentRender(bank)} />
       <PlantStats
-        vigor={last.vigor_after}
-        maturity={last.maturity_after}
-        before={{ vigor: last.vigor_before, maturity: last.maturity_before }}
+        vigor={bank.vigor}
+        maturity={bank.maturity}
+        before={{ vigor: bank.prevVigor, maturity: bank.prevMaturity }}
         effects={last.render.effects}
         pestsActive={last.render.pestsActive}
       />

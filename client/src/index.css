@@ -1,6 +1,6 @@
 :root {
   /* page / background */
-  --page: #f3ead6;
+  --page: #efe7d9;
   --page-tint: #f4ead6;
   --page-tint-mid: #e6e8c9;
   --page-tint-sage: #d4ddc2;
@@ -63,6 +63,13 @@
   box-sizing: border-box;
 }
 
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -91,37 +98,13 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-}
-
-.grid-bg .distortion-container,
-.grid-bg canvas {
-  width: 100%;
-  height: 100%;
+  background: var(--page);
 }
 
 .grid-bg-tint {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    165deg,
-    var(--page-tint) 0%,
-    var(--page-tint-mid) 50%,
-    var(--page-tint-sage) 100%
-  );
-  mix-blend-mode: color;
-  opacity: 0.88;
-}
-
-.grid-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--page-tint) 40%, transparent),
-    color-mix(in srgb, var(--page-tint-sage) 28%, transparent)
-  );
-  pointer-events: none;
+  background: var(--page);
 }
 
 .phone {
@@ -158,9 +141,14 @@ body {
   overflow: hidden;
 }
 
+h1,
+h2 {
+  font-family: 'Big Caslon', Palatino, Georgia, serif;
+  font-weight: 500;
+}
+
 h1 {
   font-size: 1.6rem;
-  font-weight: 600;
   margin: 0 0 12px;
 }
 
@@ -237,7 +225,7 @@ small {
 
 .btn {
   display: block;
-  text-align: left;
+  text-align: center;
   text-decoration: none;
   color: var(--btn-ink);
   background: var(--btn);
@@ -245,6 +233,8 @@ small {
   padding: 12px 14px;
   border-radius: 999px;
   font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -408,7 +398,7 @@ small {
 .home-shell {
   box-sizing: border-box;
   padding: 20px 18px 24px;
-  background: #fff;
+  background: var(--chip);
   border: 1px solid var(--drop-border);
   border-radius: 24px;
 }
@@ -868,5 +858,56 @@ small {
   .intro-flower-inner {
     transition-duration: 0.01s !important;
     transition-delay: 0s !important;
+  }
+}
+
+/* phone frame on desktop; below 480px the app stays full-bleed */
+@media (min-width: 480px) {
+  #root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .phone,
+  .phone:has(.setup),
+  .phone:has(.home-shell),
+  .phone:has(.intro) {
+    width: 390px;
+    height: min(820px, calc(100vh - 48px));
+    height: min(820px, calc(100dvh - 48px));
+    min-height: 0;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: var(--page);
+    border: 12px solid #191f14;
+    border-radius: 44px;
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, #191f14 35%, transparent),
+      0 30px 60px -20px rgba(28, 36, 24, 0.45),
+      0 10px 24px rgba(28, 36, 24, 0.18);
+  }
+
+  /* speaker / notch pill */
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 96px;
+    height: 7px;
+    border-radius: 999px;
+    background: #191f14;
+    opacity: 0.85;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* inside the frame, "full screen" means the frame, not the viewport */
+  .intro {
+    min-height: 100%;
   }
 }

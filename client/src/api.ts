@@ -1,4 +1,4 @@
-import type { ParseResult, PurchaseFields, PurchaseResponse, StateResponse } from "./types"
+import type { Goal, ParseResult, PurchaseFields, PurchaseResponse, StateResponse } from "./types"
 import bigHeadphones from "../../shared/fixtures/big_headphones.json"
 import smallCoffee from "../../shared/fixtures/small_coffee.json"
 import smallImpulse from "../../shared/fixtures/small_impulse.json"
@@ -22,7 +22,7 @@ function stateFromSeed(): StateResponse {
   )
   return {
     persona: seed.persona,
-    goals: seed.goals,
+    goals: seed.goals as Goal[],
     plant: {
       vigor: plant.vigor,
       baseline: plant.baseline,

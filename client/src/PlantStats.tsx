@@ -1,21 +1,9 @@
 import type { Effects } from './types.ts'
 
-const labels: { key: keyof Effects; name: string }[] = [
-  { key: 'frost', name: 'frost' },
-  { key: 'hail', name: 'hail' },
-  { key: 'lightning', name: 'lightning' },
-  { key: 'shake', name: 'shake' },
-  { key: 'rain', name: 'rain' },
-  { key: 'falling_leaves', name: 'falling leaves' },
-  { key: 'pests', name: 'pests' },
-]
-
 export function PlantStats({
   vigor,
   maturity,
   before,
-  effects,
-  pestsActive,
 }: {
   vigor: number
   maturity: number
@@ -23,24 +11,10 @@ export function PlantStats({
   effects?: Partial<Effects>
   pestsActive?: boolean
 }) {
-  const weather = labels.filter((l) => effects?.[l.key])
-  if (pestsActive && !weather.some((w) => w.key === 'pests')) {
-    weather.push({ key: 'pests', name: 'pests' })
-  }
-  const drought = effects?.drought ?? 0
   return (
     <div className="stats">
       <Bar label="Vigor" value={vigor} prior={before?.vigor} tone="vigor" />
       <Bar label="Maturity" value={maturity} prior={before?.maturity} tone="maturity" />
-      <div className="chips">
-        {weather.map((w) => (
-          <span key={w.key} className="chip">
-            {w.name}
-          </span>
-        ))}
-        {drought > 0 && <span className="chip">drought {Math.round(drought * 100)}%</span>}
-        {!weather.length && drought <= 0 && <span className="chip quiet">clear sky</span>}
-      </div>
     </div>
   )
 }

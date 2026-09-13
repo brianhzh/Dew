@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react"
 import { getState, parsePurchase, postPurchase, postCancel } from "../api"
-import type { ParseResult, PurchaseFields, PurchaseResponse, RenderInput, StateResponse } from "../types"
+import type { Effects, ParseResult, PurchaseFields, PurchaseResponse, RenderInput, StateResponse } from "../types"
 
 type Bank = {
   state: StateResponse
@@ -8,6 +8,11 @@ type Bank = {
   pending: ParseResult | null
   history: PurchaseResponse[]
   loading: boolean
+  vigor: number
+  maturity: number
+  prevVigor: number
+  prevMaturity: number
+  pestsActive: boolean
   setPending: (p: ParseResult | null) => void
   parse: (text: string) => Promise<ParseResult>
   purchase: (fields: PurchaseFields) => Promise<PurchaseResponse>
@@ -18,8 +23,30 @@ type Bank = {
 
 const Ctx = createContext<Bank | null>(null)
 
-export function currentRender(b: { last: PurchaseResponse | null; state: StateResponse }): RenderInput {
-  return b.last?.render ?? b.state.render
+const IDLE: Effects = {
+  frost: false,
+  hail: false,
+  lightning: false,
+  shake: false,
+  rain: false,
+  falling_leaves: false,
+  pests: false,
+  drought: 0,
+  wind: 0.08,
+}
+
+function clamp(n: number): number {
+  return Math.round(Math.min(100, Math.max(0, n)) * 10) / 10
+}
+
+export function currentRender(b: Pick<Bank, "vigor" | "maturity" | "pestsActive" | "last">): RenderInput {
+  return {
+    vigor: b.vigor,
+    maturity: b.maturity,
+    baseline: b.vigor,
+    pestsActive: b.pestsActive,
+    effects: b.last ? b.last.render.effects : IDLE,
+  }
 }
 
 export function BankProvider({ seed, children }: { seed: StateResponse; children: ReactNode }) {
@@ -28,6 +55,11 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
   const [pending, setPending] = useState<ParseResult | null>(null)
   const [history, setHistory] = useState<PurchaseResponse[]>([])
   const [loading, setLoading] = useState(false)
+  const [vigor, setVigor] = useState<number>(seed.render.vigor)
+  const [maturity, setMaturity] = useState<number>(seed.render.maturity)
+  const [prevVigor, setPrevVigor] = useState<number>(seed.render.vigor)
+  const [prevMaturity, setPrevMaturity] = useState<number>(seed.render.maturity)
+  const [pestsActive, setPestsActive] = useState<boolean>(seed.render.pestsActive)
 
   const api = useMemo<Bank>(
     () => ({
@@ -36,6 +68,11 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
       pending,
       history,
       loading,
+      vigor,
+      maturity,
+      prevVigor,
+      prevMaturity,
+      pestsActive,
       setPending,
       parse: async (text) => {
         setLoading(true)
@@ -51,6 +88,11 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
         setLoading(true)
         try {
           const res = await postPurchase(fields)
+          setPrevVigor(vigor)
+          setPrevMaturity(maturity)
+          setVigor(clamp(vigor + res.vigor_delta))
+          setMaturity(clamp(maturity + res.maturity_delta))
+          if (fields.is_recurring) setPestsActive(true)
           setLast(res)
           setHistory((prev) => [res, ...prev])
           const next = await getState()
@@ -64,6 +106,11 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
         setLoading(true)
         try {
           const res = await postCancel(merchant)
+          setPrevVigor(vigor)
+          setPrevMaturity(maturity)
+          setVigor(clamp(vigor + res.vigor_delta))
+          setMaturity(clamp(maturity + res.maturity_delta))
+          setPestsActive(false)
           setLast(res)
           setHistory((prev) => [res, ...prev])
           const next = await getState()
@@ -89,7 +136,7 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
         }))
       },
     }),
-    [state, last, pending, history, loading],
+    [state, last, pending, history, loading, vigor, maturity, prevVigor, prevMaturity, pestsActive],
   )
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>
