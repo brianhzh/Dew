@@ -48,6 +48,7 @@ function CarouselItem({
         width: itemWidth,
         height: round ? itemWidth : '100%',
         rotateY,
+        transformStyle: 'preserve-3d',
         ...(round && { borderRadius: '50%' }),
       }}
       transition={transition}
@@ -156,14 +157,9 @@ export function Carousel({
   }, [autoplay, autoplayDelay, isHovered, pauseOnHover, itemsForRender.length, position])
 
   useEffect(() => {
-    const start = loop ? 1 : 0
-    if (index == null) {
-      setUncontrolled(start)
-      x.set(-start * trackItemOffset)
-      return
-    }
-    x.set(-(loop ? index + 1 : index) * trackItemOffset)
-  }, [items.length, loop, trackItemOffset, x])
+    if (index != null) return
+    setUncontrolled(loop ? 1 : 0)
+  }, [items.length, loop, index])
 
   useEffect(() => {
     if (!loop && position > itemsForRender.length - 1) {

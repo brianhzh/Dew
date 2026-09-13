@@ -184,8 +184,9 @@ export class PlantEngine {
   private walk(draw: boolean, scale: number, ox: number, oy: number) {
     const ctx = this.ctx
     const rng = mulberry32(this.seed)
-    const v = this.dispV / 100
-    const sag = (1 - v) * 0.9
+    const wilt = this.dispV < 0 ? 'black' : this.dispV < 10 ? 'brown' : 'ok'
+    const v = Math.max(0, this.dispV) / 100
+    const sag = wilt === 'black' ? 1.45 : wilt === 'brown' ? 1.25 : (1 - v) * 0.9
     const baseAng = 22 + rng() * 2
     const st: number[][] = []
     let x = 0
@@ -197,12 +198,12 @@ export class PlantEngine {
     let maxx = 0
     let miny = 0
     let maxy = 0
-    const leafHue = lerp(120, 28, 1 - v)
-    const leafSat = lerp(55, 38, 1 - v)
-    const leafLit = lerp(44, 32, 1 - v)
-    const leafSize = lerp(7, 3, 1 - v) * this.regrow
-    const stemHue = lerp(92, 30, 1 - v)
-    const stemSat = lerp(40, 26, 1 - v)
+    const leafHue = wilt === 'black' ? 0 : wilt === 'brown' ? 26 : lerp(120, 28, 1 - v)
+    const leafSat = wilt === 'black' ? 0 : wilt === 'brown' ? 34 : lerp(55, 38, 1 - v)
+    const leafLit = wilt === 'black' ? 8 : wilt === 'brown' ? 24 : lerp(44, 32, 1 - v)
+    const leafSize = (wilt === 'ok' ? lerp(7, 3, 1 - v) : 2.4) * this.regrow
+    const stemHue = wilt === 'black' ? 0 : wilt === 'brown' ? 22 : lerp(92, 30, 1 - v)
+    const stemSat = wilt === 'black' ? 0 : wilt === 'brown' ? 22 : lerp(40, 26, 1 - v)
     const str = this.lstr
     for (let i = 0; i < str.length; i++) {
       const c = str[i]
@@ -217,7 +218,11 @@ export class PlantEngine {
           const sy1 = oy + y * scale
           const sx2 = ox + nx * scale
           const sy2 = oy + ny * scale
-          ctx.strokeStyle = hsl(stemHue, stemSat, lerp(34, 24, depth / 9))
+          ctx.strokeStyle = hsl(
+            stemHue,
+            stemSat,
+            wilt === 'black' ? lerp(12, 5, depth / 9) : wilt === 'brown' ? lerp(22, 14, depth / 9) : lerp(34, 24, depth / 9),
+          )
           ctx.lineWidth = Math.max(1, 6 - depth * 0.7) * scale * 0.4
           ctx.beginPath()
           ctx.moveTo(sx1, sy1)
@@ -243,11 +248,11 @@ export class PlantEngine {
           const px = ox + x * scale
           const py = oy + y * scale
           let sz = leafSize * scale * 0.5
-          if (v > 0.82 && keep < 0.35) {
+          if (wilt === 'ok' && v > 0.82 && keep < 0.35) {
             ctx.fillStyle = keep < 0.18 ? '#E9A0C0' : '#F4C7DB'
             sz *= 1.15
           } else {
-            ctx.fillStyle = hsl(leafHue + (rng() - 0.5) * 16, leafSat, leafLit)
+            ctx.fillStyle = hsl(leafHue + (wilt === 'ok' ? (rng() - 0.5) * 16 : 0), leafSat, leafLit)
           }
           ctx.beginPath()
           ctx.ellipse(px, py, sz, sz * 1.5, rng() * Math.PI, 0, 6.283)

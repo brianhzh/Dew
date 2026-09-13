@@ -4,6 +4,7 @@ import type { Effects, ParseResult, PurchaseFields, PurchaseResponse, RenderInpu
 
 type Bank = {
   state: StateResponse
+  userName: string
   last: PurchaseResponse | null
   pending: ParseResult | null
   history: PurchaseResponse[]
@@ -18,6 +19,7 @@ type Bank = {
   purchase: (fields: PurchaseFields) => Promise<PurchaseResponse>
   cancel: (merchant: string) => Promise<PurchaseResponse>
   refresh: () => Promise<void>
+  setUserName: (name: string) => void
   configure: (input: { income_mo: number; savings: number; essentials: number }) => void
 }
 
@@ -35,8 +37,8 @@ const IDLE: Effects = {
   wind: 0.08,
 }
 
-function clamp(n: number): number {
-  return Math.round(Math.min(100, Math.max(0, n)) * 10) / 10
+function clamp(n: number, min = 0): number {
+  return Math.round(Math.min(100, Math.max(min, n)) * 10) / 10
 }
 
 export function currentRender(b: Pick<Bank, "vigor" | "maturity" | "pestsActive" | "last">): RenderInput {
@@ -49,7 +51,15 @@ export function currentRender(b: Pick<Bank, "vigor" | "maturity" | "pestsActive"
   }
 }
 
-export function BankProvider({ seed, children }: { seed: StateResponse; children: ReactNode }) {
+export function BankProvider({
+  seed,
+  userName = '',
+  children,
+}: {
+  seed: StateResponse
+  userName?: string
+  children: ReactNode
+}) {
   const [state, setState] = useState<StateResponse>(seed)
   const [last, setLast] = useState<PurchaseResponse | null>(null)
   const [pending, setPending] = useState<ParseResult | null>(null)
@@ -60,10 +70,12 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
   const [prevVigor, setPrevVigor] = useState<number>(seed.render.vigor)
   const [prevMaturity, setPrevMaturity] = useState<number>(seed.render.maturity)
   const [pestsActive, setPestsActive] = useState<boolean>(seed.render.pestsActive)
+  const [name, setName] = useState(userName)
 
   const api = useMemo<Bank>(
     () => ({
       state,
+      userName: name,
       last,
       pending,
       history,
@@ -90,7 +102,7 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
           const res = await postPurchase(fields)
           setPrevVigor(vigor)
           setPrevMaturity(maturity)
-          setVigor(clamp(vigor + res.vigor_delta))
+          setVigor(clamp(vigor + res.vigor_delta, -100))
           setMaturity(clamp(maturity + res.maturity_delta))
           if (fields.is_recurring) setPestsActive(true)
           setLast(res)
@@ -108,7 +120,7 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
           const res = await postCancel(merchant)
           setPrevVigor(vigor)
           setPrevMaturity(maturity)
-          setVigor(clamp(vigor + res.vigor_delta))
+          setVigor(clamp(vigor + res.vigor_delta, -100))
           setMaturity(clamp(maturity + res.maturity_delta))
           setPestsActive(false)
           setLast(res)
@@ -124,6 +136,11 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
         const next = await getState()
         setState(next)
       },
+      setUserName: (next) => {
+        const clean = next.trim()
+        localStorage.setItem('dew.name', clean)
+        setName(clean)
+      },
       configure: ({ income_mo, savings, essentials }) => {
         setState((prev) => ({
           ...prev,
@@ -136,7 +153,7 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
         }))
       },
     }),
-    [state, last, pending, history, loading, vigor, maturity, prevVigor, prevMaturity, pestsActive],
+    [state, name, last, pending, history, loading, vigor, maturity, prevVigor, prevMaturity, pestsActive],
   )
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>

@@ -1,18 +1,26 @@
 import { Link } from 'react-router-dom'
-import { useBank, currentRender } from '../bank/BankContext.tsx'
+import { useBank } from '../bank/BankContext.tsx'
 import { PlantCanvas } from '../plant/PlantCanvas.tsx'
 import { PlantStats } from '../PlantStats.tsx'
 
 export function Home() {
   const bank = useBank()
   const { persona, projection } = bank.state
-  const render = currentRender(bank)
+  // Home is the calm resting state — show the plant without replaying the
+  // last purchase's weather effects (those belong on the Aftermath screen).
+  const render = {
+    vigor: bank.vigor,
+    maturity: bank.maturity,
+    baseline: bank.vigor,
+    pestsActive: bank.pestsActive,
+  }
+  const greeting = bank.userName ? `Hi, ${bank.userName}` : 'Dew'
 
   return (
     <section className="home-shell">
       <header>
         <p className="kicker">Your money</p>
-        <h1>Dew</h1>
+        <h1>{greeting}</h1>
         <dl className="profile">
           <div>
             <dt>Income / mo</dt>
@@ -38,7 +46,6 @@ export function Home() {
       <PlantStats
         vigor={render.vigor}
         maturity={render.maturity}
-        effects={render.effects}
         pestsActive={render.pestsActive}
       />
 
