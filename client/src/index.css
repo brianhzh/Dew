@@ -737,15 +737,38 @@ small {
   pointer-events: none;
 }
 
+/* pathLength="1" on each path normalizes length, so 1 → 0 draws the whole vine */
 .intro-vine {
-  stroke-dasharray: 1400;
-  stroke-dashoffset: 1400;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
   transition-property: stroke-dashoffset;
-  transition-timing-function: cubic-bezier(0.22, 0.8, 0.28, 1);
 }
 
 .intro-vine.is-growing {
   stroke-dashoffset: 0;
+}
+
+.intro-flower {
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 0.35s;
+}
+
+.intro-flower-inner {
+  transform: scale(0);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.7s cubic-bezier(0.34, 1.4, 0.44, 1);
+  transition-delay: inherit;
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--vine) 40%, transparent));
+}
+
+.intro-flower.is-open {
+  opacity: 1;
+}
+
+.intro-flower.is-open .intro-flower-inner {
+  transform: scale(1);
 }
 
 @font-face {
@@ -771,15 +794,26 @@ small {
   white-space: nowrap;
   color: #fff;
   -webkit-font-smoothing: antialiased;
-  text-shadow: 0 0 28px color-mix(in srgb, #fff 35%, transparent);
+  /* starts as a thin white outline, fills in and thickens as the vines finish */
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.6px #fff;
+  text-shadow: 0 0 0 transparent;
+  transition-property: -webkit-text-fill-color, -webkit-text-stroke-width, text-shadow;
+  transition-timing-function: cubic-bezier(0.55, 0, 0.75, 0.4);
+  transition-delay: 0s;
+}
+
+.intro-word.is-bold {
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 2.4px #fff;
+  text-shadow: 0 0 28px color-mix(in srgb, #fff 45%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro-word {
-    animation: none;
-  }
-
-  .intro-vine {
+  .intro-word,
+  .intro-vine,
+  .intro-flower,
+  .intro-flower-inner {
     transition-duration: 0.01s !important;
     transition-delay: 0s !important;
   }
