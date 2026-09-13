@@ -1,33 +1,33 @@
 {
-  "case": "essential",
-  "note": "rent, an essential, so no weather at all",
+  "case": "subscription",
+  "note": "a 23 dollar a month membership, aphids move in",
   "request": {
     "user_id": "demo-1",
-    "amount": 1250,
-    "category": "rent",
-    "merchant": "landlord",
-    "is_recurring": false,
-    "is_essential": true
+    "amount": 23,
+    "category": "food delivery",
+    "merchant": "DashPass",
+    "is_recurring": true,
+    "is_essential": false
   },
   "response": {
     "decision_id": "d-101",
-    "severity_bucket": "neutral",
-    "effect": "none",
-    "direction": "neutral",
+    "severity_bucket": "recurring",
+    "effect": "aphids",
+    "direction": "damaging",
     "vigor_before": 72.0,
     "vigor_after": 72.0,
     "vigor_delta": 0.0,
-    "baseline": 72.0,
+    "baseline": 67.4,
     "maturity_before": 41.0,
-    "maturity_after": 41.0,
-    "maturity_delta": 0.0,
-    "concrete_unit": "",
+    "maturity_after": 29.9,
+    "maturity_delta": -11.1,
+    "concrete_unit": "sets your next bloom back about 1 week",
     "effects": {
       "storm": 0,
       "wind": 0,
       "rain": 0,
       "cold": 0,
-      "pests_delta": 0
+      "pests_delta": 7
     },
     "leaves_fall": 0,
     "flash_shake": false,
@@ -39,8 +39,8 @@
     },
     "render": {
       "vigor": 72.0,
-      "maturity": 41.0,
-      "baseline": 72.0,
+      "maturity": 29.9,
+      "baseline": 67.4,
       "effects": {
         "frost": false,
         "hail": false,
@@ -48,12 +48,12 @@
         "shake": false,
         "rain": false,
         "falling_leaves": false,
-        "pests": false,
+        "pests": true,
         "drought": 0,
         "wind": 0
       },
-      "pestsActive": false
+      "pestsActive": true
     }
   },
-  "narrative": ""
+  "narrative": "Something small moves in under your foliage. It has no plans to leave on its own."
 }

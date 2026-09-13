@@ -1,0 +1,59 @@
+{
+  "case": "big_headphones",
+  "note": "the 250 dollar headphones, a hailstorm",
+  "request": {
+    "user_id": "demo-1",
+    "amount": 250,
+    "category": "electronics",
+    "merchant": "Best Buy",
+    "is_recurring": false,
+    "is_essential": false
+  },
+  "response": {
+    "decision_id": "d-101",
+    "severity_bucket": "big",
+    "effect": "hailstorm",
+    "direction": "damaging",
+    "vigor_before": 72.0,
+    "vigor_after": 42.0,
+    "vigor_delta": -30.0,
+    "baseline": 72.0,
+    "maturity_before": 41.0,
+    "maturity_after": 30.9,
+    "maturity_delta": -10.1,
+    "concrete_unit": "sets your next bloom back about 7 weeks",
+    "effects": {
+      "storm": 1.0,
+      "wind": 1.1,
+      "rain": 0,
+      "cold": 0,
+      "pests_delta": 0
+    },
+    "leaves_fall": 34,
+    "flash_shake": true,
+    "projection": {
+      "p10": 0.1968,
+      "p50": 1.015,
+      "p90": 2.1896,
+      "horizon_months": 48
+    },
+    "render": {
+      "vigor": 42.0,
+      "maturity": 30.9,
+      "baseline": 72.0,
+      "effects": {
+        "frost": false,
+        "hail": true,
+        "lightning": true,
+        "shake": true,
+        "rain": false,
+        "falling_leaves": true,
+        "pests": false,
+        "drought": 0,
+        "wind": 1.1
+      },
+      "pestsActive": false
+    }
+  },
+  "narrative": "A dark storm splits the sky and beats you low. You will rise again, but not by morning."
+}

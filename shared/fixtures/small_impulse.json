@@ -1,0 +1,59 @@
+{
+  "case": "small_impulse",
+  "note": "a 60 dollar impulse buy, still a cold spell but it stings more",
+  "request": {
+    "user_id": "demo-1",
+    "amount": 60,
+    "category": "impulse",
+    "merchant": "bookstore",
+    "is_recurring": false,
+    "is_essential": false
+  },
+  "response": {
+    "decision_id": "d-101",
+    "severity_bucket": "small",
+    "effect": "cold_spell",
+    "direction": "damaging",
+    "vigor_before": 72.0,
+    "vigor_after": 58.5,
+    "vigor_delta": -13.5,
+    "baseline": 72.0,
+    "maturity_before": 41.0,
+    "maturity_after": 38.6,
+    "maturity_delta": -2.4,
+    "concrete_unit": "sets your next bloom back about 2 weeks",
+    "effects": {
+      "storm": 0,
+      "wind": 0.4,
+      "rain": 0,
+      "cold": 1.0,
+      "pests_delta": 0
+    },
+    "leaves_fall": 12,
+    "flash_shake": false,
+    "projection": {
+      "p10": 0.1968,
+      "p50": 1.015,
+      "p90": 2.1896,
+      "horizon_months": 48
+    },
+    "render": {
+      "vigor": 58.5,
+      "maturity": 38.6,
+      "baseline": 72.0,
+      "effects": {
+        "frost": true,
+        "hail": false,
+        "lightning": false,
+        "shake": false,
+        "rain": false,
+        "falling_leaves": true,
+        "pests": false,
+        "drought": 0,
+        "wind": 0.4
+      },
+      "pestsActive": false
+    }
+  },
+  "narrative": "Frost rimes your youngest shoots. You shiver, hold your ground, and keep your roots deep."
+}
