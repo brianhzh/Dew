@@ -13,6 +13,7 @@ type Bank = {
   purchase: (fields: PurchaseFields) => Promise<PurchaseResponse>
   cancel: (merchant: string) => Promise<PurchaseResponse>
   refresh: () => Promise<void>
+  configure: (input: { income_mo: number; savings: number; essentials: number }) => void
 }
 
 const Ctx = createContext<Bank | null>(null)
@@ -75,6 +76,17 @@ export function BankProvider({ seed, children }: { seed: StateResponse; children
       refresh: async () => {
         const next = await getState()
         setState(next)
+      },
+      configure: ({ income_mo, savings, essentials }) => {
+        setState((prev) => ({
+          ...prev,
+          persona: {
+            ...prev.persona,
+            monthly_income: income_mo,
+            liquid_buffer: savings,
+            essentials_monthly: essentials,
+          },
+        }))
       },
     }),
     [state, last, pending, history, loading],

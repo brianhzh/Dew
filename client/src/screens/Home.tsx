@@ -9,7 +9,7 @@ export function Home() {
   const render = currentRender(bank)
 
   return (
-    <section>
+    <section className="home-shell">
       <header>
         <p className="kicker">Your money</p>
         <h1>Dew</h1>
@@ -21,6 +21,10 @@ export function Home() {
           <div>
             <dt>Liquid buffer</dt>
             <dd>${persona.liquid_buffer.toLocaleString()}</dd>
+          </div>
+          <div>
+            <dt>Essential expenses</dt>
+            <dd>${persona.essentials_monthly.toLocaleString()}</dd>
           </div>
         </dl>
         <p className="hint">
@@ -41,6 +45,9 @@ export function Home() {
       <nav className="stack">
         <Link className="btn" to="/log">
           Log a purchase
+        </Link>
+        <Link className="btn ghost" to="/setup">
+          Edit costs
         </Link>
         <Link className="btn ghost" to="/ledger">
           Ledger

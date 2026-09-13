@@ -39,14 +39,14 @@ export default function App() {
       <BrowserRouter>
         <div className="phone">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Setup />} />
+            <Route path="/setup" element={<Setup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/log" element={<Consider />} />
             <Route path="/confirm" element={<Preview />} />
             <Route path="/aftermath" element={<Aftermath />} />
             <Route path="/ledger" element={<Ledger />} />
-            <Route path="/setup" element={<Setup />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
       </BrowserRouter>

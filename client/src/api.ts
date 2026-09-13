@@ -5,7 +5,7 @@ import smallImpulse from "../../shared/fixtures/small_impulse.json"
 import essential from "../../shared/fixtures/essential.json"
 import subscription from "../../shared/fixtures/subscription.json"
 import cancel from "../../shared/fixtures/cancel.json"
-import state from "../../shared/fixtures/state.json"
+import seed from "../../shared/seed.json"
 
 const OFFLINE = import.meta.env.VITE_OFFLINE !== "false"
 const BASE = (import.meta.env.VITE_API_BASE as string) || "http://localhost:8000"
@@ -15,8 +15,45 @@ const fixtures = [bigHeadphones, smallImpulse, smallCoffee, essential, subscript
 
 const json = { "Content-Type": "application/json" }
 
+function stateFromSeed(): StateResponse {
+  const plant = seed.plant_state
+  const pests = plant.pests.map((p) =>
+    typeof p === "string" ? { merchant: p, count: 1 } : p,
+  )
+  return {
+    persona: seed.persona,
+    goals: seed.goals,
+    plant: {
+      vigor: plant.vigor,
+      baseline: plant.baseline,
+      maturity: plant.maturity,
+      pests,
+      pest_count: pests.reduce((n, p) => n + p.count, 0),
+    },
+    subscriptions: seed.subscriptions,
+    projection: { p10: 0.2, p50: 1, p90: 2.2, horizon_months: seed.persona.horizon_months },
+    render: {
+      vigor: plant.vigor,
+      maturity: plant.maturity,
+      baseline: plant.baseline,
+      pestsActive: pests.length > 0,
+      effects: {
+        frost: false,
+        hail: false,
+        lightning: false,
+        shake: false,
+        rain: false,
+        falling_leaves: false,
+        pests: pests.length > 0,
+        drought: 0,
+        wind: 0.08,
+      },
+    },
+  }
+}
+
 export async function getState(): Promise<StateResponse> {
-  if (OFFLINE) return state as unknown as StateResponse
+  if (OFFLINE) return stateFromSeed()
   const r = await fetch(BASE + "/state")
   return (await r.json()) as StateResponse
 }
