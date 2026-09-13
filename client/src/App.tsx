@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { getState } from './api.ts'
 import { BankProvider, useBank } from './bank/BankContext.tsx'
@@ -6,6 +6,7 @@ import { BeigeGridBackground } from './components/BeigeGridBackground.tsx'
 import { Aftermath } from './screens/Aftermath.tsx'
 import { Consider } from './screens/Consider.tsx'
 import { Home } from './screens/Home.tsx'
+import { Intro } from './screens/Intro.tsx'
 import { Ledger } from './screens/Ledger.tsx'
 import { Preview } from './screens/Preview.tsx'
 import { Setup } from './screens/Setup.tsx'
@@ -14,16 +15,21 @@ import type { AppState } from './types.ts'
 
 export default function App() {
   const [state, setState] = useState<AppState | null>(null)
+  const [introDone, setIntroDone] = useState(false)
+
+  const finishIntro = useCallback(() => setIntroDone(true), [])
 
   useEffect(() => {
     void getState().then(setState)
   }, [])
 
-  if (!state) {
+  if (!introDone || !state) {
     return (
       <>
         <BeigeGridBackground />
-        <div className="phone">Loading…</div>
+        <div className="phone">
+          <Intro onFinished={finishIntro} />
+        </div>
       </>
     )
   }
