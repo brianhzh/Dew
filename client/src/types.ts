@@ -1,108 +1,15 @@
-export type Importance = 'essential' | 'small_medium' | 'subscription' | 'large'
-
-export type Need = {
-  id: string
-  label: string
-  amount: number
-  importance: Importance | null
-}
-
-export type Severity =
-  | 'minor'
-  | 'moderate'
-  | 'major'
-  | 'essential'
-  | 'recurring'
-  | 'skip'
-  | 'cancel'
-  | 'drought'
-
-export type Effects = {
-  frost: boolean
-  hail: boolean
-  lightning: boolean
-  shake: boolean
-  drought: number
-  rain: boolean
-  wind: number
-  falling_leaves: boolean
-  pests: boolean
-}
-
-export type PlantState = {
-  vigor: number
-  maturity: number
-  baseline: number
-  reserve_weeks: number
-}
-
-export type Layer1 = {
-  decision_id: string
-  mode: string
-  phase: string
-  severity: Severity
-  effects: Effects
-  plant_before: PlantState
-  plant_after: PlantState
-  plant_delta: {
-    vigor_delta: number
-    maturity_delta: number
-    baseline_delta: number
-  }
-  pests: { active: boolean; kind?: string }
-  reserve_weeks_before: number
-  reserve_weeks_after: number
-  reserve_material: boolean
-  healthy: boolean
-  healthy_score: number
-  trophy_awarded: boolean
-  healthy_saves_count: number
-  goal_ref: { recommended_goal_id: string; reason_code: string }
-  narrative_seed: {
-    severity: string
-    metaphor_key: string
-    reserve_weeks_after: number
-  }
-  amount?: number
-  category?: string
-  label?: string
-  importance?: Importance
-  warranted?: boolean
-  clean_streak?: number
-  weeks_until_reserve_empty?: number
-  required_discretionary_drop?: number
-  drop_by_date?: string
-}
-
-export type Goal = {
-  id: string
-  horizon: 'short' | 'mid' | 'long'
-  label: string
-  target_amount: number
-  current_amount: number
-  pct_complete: number
-  stage: number
-  harvested: boolean
-}
-
-export type AppState = {
-  persona: {
-    name: string
-    role: string
-    income_mo: number
-    savings: number
-    age: number
-    interests: string[]
-    cost_of_living: string
-    display_locked: true
-  }
-  plant_state: PlantState & {
-    effects: { drought: number }
-    pests: { active: boolean }
-  }
-  goals: Goal[]
-  subscriptions: unknown[]
-  trophies: unknown[]
-  healthy_saves_count: number
-  stage_label: string
-}
+export type Effects = { frost: boolean; hail: boolean; lightning: boolean; shake: boolean; rain: boolean; falling_leaves: boolean; pests: boolean; drought: number; wind: number }
+export type RenderInput = { vigor: number; maturity: number; baseline: number; pestsActive: boolean; effects: Effects }
+export type Projection = { p10: number; p50: number; p90: number; horizon_months: number }
+export type PurchaseFields = { amount: number; category: string; merchant: string; is_recurring: boolean; is_essential: boolean }
+export type ParseResult = PurchaseFields & { review: boolean; transcript: string }
+export type Bucket = "neutral" | "small" | "big" | "recurring" | "cancel"
+export type EffectName = "none" | "cold_spell" | "hailstorm" | "aphids" | "aphids_leave"
+export type PurchaseResponse = { decision_id: string; severity_bucket: Bucket; effect: EffectName; direction: "damaging"|"nourishing"|"neutral"; vigor_before: number; vigor_after: number; vigor_delta: number; baseline: number; maturity_before: number; maturity_after: number; maturity_delta: number; concrete_unit: string; effects: { storm: number; wind: number; rain: number; cold: number; pests_delta: number }; leaves_fall: number; flash_shake: boolean; projection: Projection; render: RenderInput }
+export type Persona = { user_id: string; monthly_income: number; essentials_monthly: number; savings_target_monthly: number; liquid_buffer: number; horizon_months: number }
+export type Goal = { goal_id: string; term: "short"|"mid"|"long"; name: string; amount: number; progress: number }
+export type Subscription = { merchant: string; amount_monthly: number; baseline_drop: number; started_ts: number }
+export type StateResponse = { persona: Persona; goals: Goal[]; plant: { vigor: number; baseline: number; maturity: number; pests: { merchant: string; count: number }[]; pest_count: number }; subscriptions: Subscription[]; projection: Projection; render: RenderInput }
+// keep these two ONLY for the cosmetic onboarding (Setup/SoilPicker/needs.ts):
+export type Importance = "essential" | "small_medium" | "subscription" | "large"
+export type Need = { id: string; label: string; amount: number; importance: Importance | null }

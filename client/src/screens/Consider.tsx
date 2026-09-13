@@ -1,97 +1,80 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import constants from '../../../shared/constants.json'
 import { useBank } from '../bank/BankContext.tsx'
-import { spendQuery } from '../spend.ts'
-import type { Need } from '../types.ts'
+import type { ParseResult } from '../types.ts'
 
 export function Consider() {
   const nav = useNavigate()
-  const { books } = useBank()
-  const [label, setLabel] = useState('')
-  const [amount, setAmount] = useState('')
-  const threshold = constants.model.warranted_after_clean
-  const essentials = books.needs.filter((n) => n.importance === 'essential')
+  const { parse, setPending, loading } = useBank()
+  const [text, setText] = useState('')
+  const [essential, setEssential] = useState(false)
+  const [subscription, setSubscription] = useState(false)
 
-  function go(need: Need) {
-    nav(
-      `/preview?${spendQuery({
-        amount: need.amount,
-        category: need.label.toLowerCase(),
-        label: need.label,
-        importance: 'essential',
-      })}`,
-    )
+  async function onParse() {
+    const t = text.trim()
+    if (!t || loading) return
+    await parse(t)
+    nav('/confirm')
   }
 
-  function goCustom(e: FormEvent) {
-    e.preventDefault()
-    const text = label.trim()
-    const n = Number(amount)
-    if (!text || !Number.isFinite(n) || n <= 0) return
-    nav(
-      `/preview?${spendQuery({
-        amount: n,
-        category: text.toLowerCase(),
-        label: text,
-      })}`,
-    )
+  function onManual() {
+    const t = text.trim()
+    const m = t.match(/\$?\s?(\d+(?:\.\d+)?)/)
+    const amount = m ? parseFloat(m[1]) : 0
+    const pending: ParseResult = {
+      amount,
+      category: 'other',
+      merchant: '',
+      is_recurring: subscription,
+      is_essential: essential,
+      review: amount <= 0,
+      transcript: t,
+    }
+    setPending(pending)
+    nav('/confirm')
   }
 
   return (
     <section>
-      <p className="kicker">After purchase</p>
-      <h1>What did you spend?</h1>
-      <p className="hint">
-        Clean streak {books.clean_streak}/{threshold}. After enough clean choices, a small want lands
-        softer.
-      </p>
+      <p className="kicker">New entry</p>
+      <h1>Log a purchase</h1>
+      <p className="hint">Say it or type it — "spent 250 on headphones at best buy".</p>
 
-      <form className="custom-spend" onSubmit={goCustom}>
-        <label>
-          What
-          <input
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="Coffee, headphones…"
-          />
-        </label>
-        <label>
-          Amount
-          <input
-            type="number"
-            min="1"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="$"
-          />
-        </label>
-        <button className="btn" type="submit">
-          See the tree
+      <div className="stack">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Spent 250 on headphones at best buy…"
+          rows={3}
+        />
+        <button className="btn" type="button" onClick={onParse} disabled={loading || !text.trim()}>
+          {loading ? 'Parsing…' : 'Parse'}
         </button>
-      </form>
+      </div>
 
-      {essentials.length > 0 && (
-        <div className="bucket">
-          <p className="kicker">Your essentials</p>
-          <div className="stack tight">
-            {essentials.map((need) => (
-              <button key={need.id} className="btn" type="button" onClick={() => go(need)}>
-                {need.label}
-                <small>${need.amount}</small>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="chips">
+        <label>
+          <input
+            type="checkbox"
+            checked={essential}
+            onChange={(e) => setEssential(e.target.checked)}
+          />
+          Essential
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={subscription}
+            onChange={(e) => setSubscription(e.target.checked)}
+          />
+          Subscription
+        </label>
+      </div>
 
       <nav className="stack">
-        <Link className="btn ghost" to="/setup">
-          Edit costs
-        </Link>
-        <Link className="btn ghost" to="/consider/whatif">
-          What-if · income stops
-        </Link>
+        <button className="btn ghost" type="button" onClick={onManual}>
+          Skip parsing, set the fields myself
+        </button>
         <Link className="btn ghost" to="/home">
           Back
         </Link>

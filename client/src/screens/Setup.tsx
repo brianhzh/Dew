@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useBank } from '../bank/BankContext.tsx'
 import { Carousel } from '../components/Carousel.tsx'
 import { SoilPicker } from '../SoilPicker.tsx'
 import type { Need } from '../types.ts'
@@ -25,7 +24,6 @@ function PotIcon() {
 }
 
 export function Setup() {
-  const { books, configure } = useBank()
   const nav = useNavigate()
   const [income, setIncome] = useState('')
   const [savings, setSavings] = useState('')
@@ -146,15 +144,7 @@ export function Setup() {
                 className="btn"
                 type="button"
                 disabled={!booksReady}
-                onClick={() => {
-                  configure({
-                    name: books.name,
-                    income_mo: incomeMo,
-                    savings: cash,
-                    needs: needs.filter((n) => n.importance === 'essential'),
-                  })
-                  nav('/home')
-                }}
+                onClick={() => nav('/home')}
               >
                 Continue
               </button>
