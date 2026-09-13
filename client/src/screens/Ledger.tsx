@@ -20,7 +20,7 @@ export function Ledger() {
           <dd>${books.income_mo.toLocaleString()}</dd>
         </div>
         <div>
-          <dt>Fixed bills</dt>
+          <dt>Essential Expenses</dt>
           <dd>${books.fixed_bills_mo.toLocaleString()}</dd>
         </div>
         <div>
