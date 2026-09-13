@@ -135,8 +135,10 @@ function SoilBucket({
         <ul className="soil-planted">
           {soil.map((need) => (
             <li key={need.id}>
-              {need.label} · ${need.amount}
-                <button type="button" className="text-btn" onClick={() => onUnplant?.(need.id)}>
+              <span>
+                {need.label} · ${need.amount}
+              </span>
+              <button type="button" className="text-btn" onClick={() => onUnplant?.(need.id)}>
                 Undo
               </button>
             </li>
