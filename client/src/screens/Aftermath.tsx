@@ -1,17 +1,40 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useBank } from '../bank/BankContext.tsx'
+import { getNarrative } from '../api'
 import { PlantCanvas } from '../plant/PlantCanvas.tsx'
 import { PlantStats } from '../PlantStats.tsx'
+import type { EffectName } from '../types'
+
+const effectLabels: Record<EffectName, string> = {
+  none: 'Clear skies',
+  cold_spell: 'Cold spell',
+  hailstorm: 'Hailstorm',
+  aphids: 'Aphids',
+  aphids_leave: 'Aphids leave',
+}
 
 export function Aftermath() {
-  const { books } = useBank()
-  const last = books.last
+  const { last } = useBank()
+  const [narrative, setNarrative] = useState('')
+
+  useEffect(() => {
+    if (!last) return
+    let live = true
+    getNarrative(last.decision_id).then((n) => {
+      if (live) setNarrative(n)
+    })
+    return () => {
+      live = false
+    }
+  }, [last])
+
   if (!last) {
     return (
       <section>
-        <p>No spend settled yet.</p>
-        <Link className="btn ghost" to="/consider">
-          Log a spend
+        <p>No purchase logged yet.</p>
+        <Link className="btn ghost" to="/log">
+          Log a purchase
         </Link>
       </section>
     )
@@ -20,30 +43,17 @@ export function Aftermath() {
   return (
     <section>
       <p className="kicker">Aftermath</p>
-      <h1>
-        {last.healthy ? 'The tree eases' : last.warranted ? 'You earned this one' : 'The tree takes it'}
-      </h1>
-      <PlantCanvas
-        vigor={last.plant_after.vigor}
-        maturity={last.plant_after.maturity}
-        baseline={last.plant_after.baseline}
-        effects={last.effects}
-        pestsActive={last.pests.active}
-        reserveWeeks={last.reserve_weeks_after}
-      />
+      <h1>{effectLabels[last.effect]}</h1>
+      <PlantCanvas {...last.render} />
       <PlantStats
-        vigor={last.plant_after.vigor}
-        maturity={last.plant_after.maturity}
-        before={last.plant_before}
-        effects={last.effects}
-        pestsActive={last.pests.active}
+        vigor={last.vigor_after}
+        maturity={last.maturity_after}
+        before={{ vigor: last.vigor_before, maturity: last.maturity_before }}
+        effects={last.render.effects}
+        pestsActive={last.render.pestsActive}
       />
-      <p className="line">
-        {last.narrative_seed.metaphor_key} · reserve {last.reserve_weeks_after} weeks · cash $
-        {books.cash.toLocaleString()}
-      </p>
-      {last.healthy && <p className="hint">healthy save · {last.healthy_saves_count} so far</p>}
-      {last.warranted && <p className="hint">warranted treat · streak spent</p>}
+      <p className="hint">{last.concrete_unit}</p>
+      {narrative && <p className="hint">{narrative}</p>}
       <nav className="stack">
         <Link className="btn" to="/home">
           Home

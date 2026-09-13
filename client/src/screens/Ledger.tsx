@@ -1,67 +1,65 @@
 import { Link } from 'react-router-dom'
-import constants from '../../../shared/constants.json'
 import { useBank } from '../bank/BankContext.tsx'
+import type { EffectName } from '../types.ts'
+
+const effectLabels: Record<EffectName, string> = {
+  none: 'Calm',
+  cold_spell: 'Cold spell',
+  hailstorm: 'Hailstorm',
+  aphids: 'Aphids',
+  aphids_leave: 'Aphids leave',
+}
 
 export function Ledger() {
-  const { books } = useBank()
-  const need = constants.model.warranted_after_clean
-  const essentials = books.needs.filter((n) => n.importance === 'essential')
+  const { state, history, cancel } = useBank()
+  const { persona, subscriptions } = state
+
   return (
     <section>
       <p className="kicker">Ledger</p>
-      <h1>Fake bank</h1>
+      <h1>Your money</h1>
       <dl className="profile">
         <div>
-          <dt>Cash</dt>
-          <dd>${books.cash.toLocaleString()}</dd>
-        </div>
-        <div>
           <dt>Income / mo</dt>
-          <dd>${books.income_mo.toLocaleString()}</dd>
+          <dd>${persona.monthly_income.toLocaleString()}</dd>
         </div>
         <div>
-          <dt>Essential Expenses</dt>
-          <dd>${books.fixed_bills_mo.toLocaleString()}</dd>
-        </div>
-        <div>
-          <dt>Clean streak</dt>
-          <dd>
-            {books.clean_streak}/{need}
-          </dd>
+          <dt>Liquid buffer</dt>
+          <dd>${persona.liquid_buffer.toLocaleString()}</dd>
         </div>
       </dl>
 
-      <div className="bucket">
-        <p className="kicker">Essentials</p>
+      <div className="stack">
+        <p className="kicker">Subscriptions</p>
         <ul className="goals">
-          {essentials.length === 0 && <li className="empty">None</li>}
-          {essentials.map((n) => (
-            <li key={n.id}>
-              <strong>{n.label}</strong>
-              <span>${n.amount}</span>
+          {subscriptions.length === 0 && <li>No subscriptions</li>}
+          {subscriptions.map((s) => (
+            <li key={s.merchant}>
+              <strong>{s.merchant}</strong>
+              <span>${s.amount_monthly.toLocaleString()} /mo</span>
+              <button className="btn ghost" onClick={() => cancel(s.merchant)}>
+                Cancel
+              </button>
             </li>
           ))}
         </ul>
       </div>
 
-      <ul className="goals">
-        {books.txns.length === 0 && <li>No charges yet</li>}
-        {books.txns.map((t) => (
-          <li key={t.id}>
-            <strong>
-              {t.skipped ? 'Skipped' : t.warranted ? 'Warranted' : 'Spent'} ${t.amount}
-            </strong>
-            <span>
-              {t.category}
-              {t.cadence === 'monthly' ? ' /mo' : ''}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="panel">
-        <p>Trophies: {books.trophies}</p>
-        <p>Healthy saves: {books.healthy_saves_count}</p>
+      <div className="stack">
+        <p className="kicker">Recent</p>
+        <ul className="goals">
+          {history.length === 0 && <li>No charges yet</li>}
+          {history.map((h, i) => (
+            <li key={`${h.decision_id}-${i}`}>
+              <strong>{h.concrete_unit}</strong>
+              <span>
+                {h.severity_bucket} · {effectLabels[h.effect]}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
+
       <Link className="btn ghost" to="/home">
         Home
       </Link>
