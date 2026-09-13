@@ -136,12 +136,20 @@ body {
   border: 0;
 }
 
-.phone:has(.setup) {
+.phone:has(.setup),
+.phone:has(.home-shell) {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.phone:has(.setup) {
+  justify-content: center;
+  padding: 24px 18px;
 }
 
 .phone:has(.intro) {
@@ -383,6 +391,7 @@ small {
 
 .setup {
   width: min(360px, 100%);
+  margin: auto 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -395,12 +404,27 @@ small {
   margin: 0;
 }
 
-.setup-plant {
+.setup-plant,
+.home-shell {
   box-sizing: border-box;
   padding: 20px 18px 24px;
   background: #fff;
   border: 1px solid var(--drop-border);
   border-radius: 24px;
+}
+
+.home-shell {
+  width: min(370px, 100%);
+  margin: auto 0;
+}
+
+.home-shell .tree-slot {
+  margin: 0 0 8px;
+}
+
+.home-shell .tree-canvas {
+  max-width: 100%;
+  border-radius: 12px;
 }
 
 .setup-ask .carousel-item {
