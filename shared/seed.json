@@ -13,9 +13,9 @@
     { "goal_id": "g-long", "term": "long", "name": "Graduate with a buffer", "amount": 5000, "progress": 480 }
   ],
   "plant_state": {
-    "vigor": 72,
-    "baseline": 72,
-    "maturity": 41,
+    "vigor": 100,
+    "baseline": 100,
+    "maturity": 100,
     "pests": [],
     "last_event_ts": 0
   },
