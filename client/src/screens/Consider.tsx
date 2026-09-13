@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useBank } from '../bank/BankContext.tsx'
+import { VoiceButton } from '../voice/VoiceButton'
 import type { ParseResult } from '../types.ts'
 
 export function Consider() {
@@ -47,6 +48,9 @@ export function Consider() {
           placeholder="Spent 250 on headphones at best buy…"
           rows={3}
         />
+        {/* Voice input. Logic lives in src/voice/ — safe to restyle this button,
+            just keep the <VoiceButton onResult={setText} /> wiring. */}
+        <VoiceButton onResult={setText} />
         <button className="btn" type="button" onClick={onParse} disabled={loading || !text.trim()}>
           {loading ? 'Parsing…' : 'Parse'}
         </button>
