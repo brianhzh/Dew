@@ -145,7 +145,7 @@ export function Intro({ onFinished }: { onFinished: () => void }) {
     const start = window.setTimeout(() => setGrow(true), GROW_AT * 1000)
     // TEMP-DEBUG: ?hold keeps the intro on screen
     const hold = new URLSearchParams(window.location.search).has('hold')
-    const done = hold ? 0 : window.setTimeout(onFinished, FINISH_MS)
+    const done = hold ? 0 : window.setTimeout(() => onFinished(), FINISH_MS)
     return () => {
       window.clearTimeout(start)
       window.clearTimeout(done)

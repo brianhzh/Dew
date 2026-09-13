@@ -427,6 +427,28 @@ small {
   width: 100%;
 }
 
+.log-field {
+  width: 100%;
+  min-width: 0;
+  resize: none;
+  color: var(--text);
+  background: color-mix(in srgb, var(--page) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--drop-border) 20%, transparent);
+  border-radius: 16px;
+  padding: 14px 16px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.log-field::placeholder {
+  color: color-mix(in srgb, var(--text-muted) 85%, transparent);
+}
+
+.log-field:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--page) 82%, transparent);
+  border-color: color-mix(in srgb, var(--drop-border) 42%, transparent);
+}
+
 .books-ask {
   display: grid;
   gap: 12px;
@@ -777,6 +799,40 @@ small {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.intro-ask {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: min(300px, 80%);
+  display: grid;
+  gap: 12px;
+  text-align: center;
+  animation: intro-ask-in 0.5s ease both;
+}
+
+.intro-ask-label {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.intro-ask .btn {
+  width: 100%;
+}
+
+@keyframes intro-ask-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 /* pathLength="1" on each path normalizes length, so 1 → 0 draws the whole vine */

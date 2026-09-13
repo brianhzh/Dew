@@ -24,9 +24,19 @@ function PotIcon() {
   )
 }
 
+function NameIcon() {
+  return (
+    <svg className="carousel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M20 21a8 8 0 00-16 0" />
+      <circle cx="12" cy="8" r="4" />
+    </svg>
+  )
+}
+
 export function Setup() {
-  const { configure } = useBank()
+  const { configure, setUserName, userName } = useBank()
   const nav = useNavigate()
+  const [name, setName] = useState(userName)
   const [income, setIncome] = useState('')
   const [savings, setSavings] = useState('')
   const [needs, setNeeds] = useState<Need[]>([])
@@ -34,12 +44,15 @@ export function Setup() {
   const [phase, setPhase] = useState<'ask' | 'plant'>('ask')
   const incomeMo = Number(income)
   const cash = Number(savings)
+  const nameReady = name.trim().length > 0
   const booksReady = Number.isFinite(incomeMo) && incomeMo > 0 && Number.isFinite(cash) && cash >= 0
   const hasExpenses = needs.some((n) => n.importance == null)
   const planted = needs.some((n) => n.importance === 'essential')
 
   function goSlide(next: number) {
-    if (next === 1 && !booksReady) return
+    if (next >= 1 && !nameReady) return
+    if (next >= 2 && !booksReady) return
+    if (next >= 1) setUserName(name)
     setSlide(next)
   }
 
@@ -52,10 +65,31 @@ export function Setup() {
             autoplay={false}
             loop={false}
             round={false}
-            swipe={false}
+            swipe
             index={slide}
             onIndexChange={goSlide}
             items={[
+              {
+                id: 0,
+                title: 'You',
+                icon: <NameIcon />,
+                content: (
+                  <div className="books-ask" onPointerDown={(e) => e.stopPropagation()}>
+                    <label>
+                      What should we call you?
+                      <input
+                        autoFocus
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Your name"
+                      />
+                    </label>
+                    <button className="btn" type="button" disabled={!nameReady} onClick={() => goSlide(1)}>
+                      Next
+                    </button>
+                  </div>
+                ),
+              },
               {
                 id: 1,
                 title: 'Your Plant',
@@ -92,7 +126,7 @@ export function Setup() {
                         />
                       </span>
                     </label>
-                    <button className="btn" type="button" disabled={!booksReady} onClick={() => goSlide(1)}>
+                    <button className="btn" type="button" disabled={!booksReady} onClick={() => goSlide(2)}>
                       Next
                     </button>
                   </div>
@@ -147,6 +181,7 @@ export function Setup() {
                 type="button"
                 disabled={!booksReady}
                 onClick={() => {
+                  setUserName(name)
                   configure({
                     income_mo: incomeMo,
                     savings: cash,

@@ -15,6 +15,7 @@ import type { StateResponse } from './types.ts'
 export default function App() {
   const [state, setState] = useState<StateResponse | null>(null)
   const [introDone, setIntroDone] = useState(false)
+  const [name] = useState<string>(() => localStorage.getItem('dew.name') ?? '')
 
   const finishIntro = useCallback(() => setIntroDone(true), [])
 
@@ -34,7 +35,7 @@ export default function App() {
   }
 
   return (
-    <BankProvider seed={state}>
+    <BankProvider seed={state} userName={name}>
       <BeigeGridBackground />
       <BrowserRouter>
         <div className="phone">

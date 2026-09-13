@@ -39,10 +39,10 @@ export function Consider() {
     <section>
       <p className="kicker">New entry</p>
       <h1>Log a purchase</h1>
-      <p className="hint">Say it or type it — "spent 250 on headphones at best buy".</p>
 
       <div className="stack">
         <textarea
+          className="log-field"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Spent 250 on headphones at best buy…"
