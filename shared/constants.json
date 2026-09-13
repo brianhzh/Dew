@@ -1,0 +1,50 @@
+{
+  "persona": {
+    "income_mo": 1500,
+    "savings": 5000,
+    "fixed_bills_mo": 930,
+    "starting_vigor": 100,
+    "starting_maturity": 100,
+    "starting_baseline": 100,
+    "starting_reserve_weeks": 8
+  },
+  "model": {
+    "weeks_per_month": 4.345,
+    "essential_reserve_scale": 0.2,
+    "recurring_months_prepaid": 3,
+    "vigor_floor": 4,
+    "vigor_span": 28,
+    "vigor_half": 80,
+    "maturity_income_weight": 75,
+    "skip_vigor_gain": 8,
+    "skip_reserve_restore": 0.5,
+    "warranted_after_clean": 3,
+    "warranted_vigor_scale": 0.35,
+    "note": "A local stand-in until B ports this to Snowflake fake bank. Same keys, replace the numbers."
+  },
+  "buckets": {
+    "minor_max": 20,
+    "moderate_max": 70,
+    "note": "B owns mapping from amount → severity. These are student-scale hints for Checkpoint 1, then freeze."
+  },
+  "essentials": ["tuition", "rent", "groceries", "transit", "phone"],
+  "healthy_saves_for_trophy": 3,
+  "severity_effects": {
+    "minor": { "frost": true, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 0.25 },
+    "moderate": { "frost": false, "hail": true, "lightning": false, "shake": false, "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 0.45 },
+    "major": { "frost": false, "hail": true, "lightning": true, "shake": true, "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 0.7 },
+    "essential": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.08 },
+    "recurring": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": false, "pests": true, "drought": 0, "wind": 0.15 },
+    "warranted": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": true, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.12 },
+    "skip": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": true, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.12 },
+    "cancel": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.08 },
+    "drought": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": true, "pests": false, "drought": 0.85, "wind": 0.1 }
+  },
+  "demo_buys": [
+    { "id": "coffee", "label": "Coffee run", "amount": 15, "category": "coffee", "severity": "minor" },
+    { "id": "impulse", "label": "Impulse drop", "amount": 60, "category": "impulse", "severity": "moderate" },
+    { "id": "headphones", "label": "Headphones", "amount": 250, "category": "electronics", "severity": "major" },
+    { "id": "subscription", "label": "Campus streaming", "amount": 23, "category": "subscription", "recurring": true, "severity": "recurring" },
+    { "id": "tuition", "label": "Tuition payment", "amount": 800, "category": "tuition", "essential": true, "severity": "essential" }
+  ]
+}

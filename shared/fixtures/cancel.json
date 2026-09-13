@@ -1,0 +1,23 @@
+{
+  "decision_id": "fix-cancel",
+  "mode": "cancel",
+  "phase": "after_purchase",
+  "severity": "cancel",
+  "effects": { "frost": false, "hail": false, "lightning": false, "shake": false, "drought": 0, "rain": false, "wind": 0.08, "falling_leaves": false, "pests": false },
+  "plant_before": { "vigor": 100, "maturity": 86, "baseline": 92, "reserve_weeks": 7.4 },
+  "plant_after": { "vigor": 100, "maturity": 92, "baseline": 100, "reserve_weeks": 7.6 },
+  "plant_delta": { "vigor_delta": 0, "maturity_delta": 6, "baseline_delta": 8 },
+  "pests": { "active": false },
+  "reserve_weeks_before": 7.4,
+  "reserve_weeks_after": 7.6,
+  "reserve_material": false,
+  "healthy": true,
+  "healthy_score": 1,
+  "trophy_awarded": false,
+  "healthy_saves_count": 1,
+  "goal_ref": { "recommended_goal_id": "goal-short", "reason_code": "closest" },
+  "narrative_seed": { "severity": "cancel", "metaphor_key": "clear", "reserve_weeks_after": 7.6 },
+  "opportunity_items": null,
+  "amount": 23,
+  "category": "subscription"
+}

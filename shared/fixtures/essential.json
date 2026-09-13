@@ -1,0 +1,23 @@
+{
+  "decision_id": "fix-essential",
+  "mode": "preview",
+  "phase": "after_purchase",
+  "severity": "essential",
+  "effects": { "frost": false, "hail": false, "lightning": false, "shake": false, "drought": 0, "rain": false, "wind": 0.08, "falling_leaves": false, "pests": false },
+  "plant_before": { "vigor": 100, "maturity": 100, "baseline": 100, "reserve_weeks": 8 },
+  "plant_after": { "vigor": 100, "maturity": 100, "baseline": 100, "reserve_weeks": 6.8 },
+  "plant_delta": { "vigor_delta": 0, "maturity_delta": 0, "baseline_delta": 0 },
+  "pests": { "active": false },
+  "reserve_weeks_before": 8,
+  "reserve_weeks_after": 6.8,
+  "reserve_material": true,
+  "healthy": false,
+  "healthy_score": 0,
+  "trophy_awarded": false,
+  "healthy_saves_count": 0,
+  "goal_ref": { "recommended_goal_id": "goal-short", "reason_code": "closest" },
+  "narrative_seed": { "severity": "essential", "metaphor_key": "still", "reserve_weeks_after": 6.8 },
+  "opportunity_items": null,
+  "amount": 800,
+  "category": "tuition"
+}

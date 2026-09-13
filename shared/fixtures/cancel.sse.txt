@@ -1,0 +1,3 @@
+data: {"text":"The pests lift off. The wood stands a little taller."}
+
+event: done
