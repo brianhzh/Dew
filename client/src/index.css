@@ -43,6 +43,9 @@
   --border: #c4beae;
   --line: #d5cfbf;
 
+  /* intro vines */
+  --vine: #647f61;
+
   /* vigor vs maturity bars */
   --bar-track: #e4ddcc;
   --bar-border: #c4beae;
@@ -139,6 +142,12 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.phone:has(.intro) {
+  width: min(390px, 100%);
+  padding: 0;
+  overflow: hidden;
 }
 
 h1 {
@@ -706,4 +715,72 @@ small {
 .soil-drop p {
   margin: 0;
   color: var(--text-muted);
+}
+
+.intro {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.intro-vines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.intro-vine {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  transition-property: stroke-dashoffset;
+  transition-timing-function: cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+
+.intro-vine.is-growing {
+  stroke-dashoffset: 0;
+}
+
+@font-face {
+  font-family: 'Big Caslon';
+  src:
+    local('Big Caslon Medium'),
+    local('Big Caslon'),
+    url('/fonts/BigCaslon.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+.intro-word {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: 'Big Caslon', Palatino, Georgia, serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 8rem;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  text-shadow: 0 0 28px color-mix(in srgb, #fff 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-word {
+    animation: none;
+  }
+
+  .intro-vine {
+    transition-duration: 0.01s !important;
+    transition-delay: 0s !important;
+  }
 }
