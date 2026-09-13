@@ -31,9 +31,9 @@
     }
   ],
   "plant_state": {
-    "vigor": 72,
-    "baseline": 72,
-    "maturity": 41,
+    "vigor": 100,
+    "baseline": 100,
+    "maturity": 100,
     "pests": [],
     "last_event_ts": 1789334002.8981435
   },
