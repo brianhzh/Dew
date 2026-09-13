@@ -1,3 +1,0 @@
-data: {"text":"Hail ticks the canopy. Not a wrecking storm. Enough to remember the afternoon."}
-
-event: done

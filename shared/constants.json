@@ -1,50 +1,17 @@
 {
-  "persona": {
-    "income_mo": 1500,
-    "savings": 5000,
-    "fixed_bills_mo": 930,
-    "starting_vigor": 100,
-    "starting_maturity": 100,
-    "starting_baseline": 100,
-    "starting_reserve_weeks": 8
+  "weeks_per_month": 4.33,
+  "buffer_hit_weight": 2,
+  "buckets": { "big_min": 0.35 },
+  "vigor": { "delta_scale": 45, "delta_min": 2, "delta_max": 30, "recovery_r_day": 0.12 },
+  "recurring": { "baseline_scale": 40, "baseline_min": 2, "baseline_max": 10, "pests_per_subscription": 7 },
+  "maturity": { "growth_per_day": 0.04, "setback_scale": 1.0, "recurring_months": 12, "setback_cap": 15, "cancel_recover_frac": 0.5 },
+  "effects": {
+    "neutral":   { "storm": 0,   "wind": 0,   "rain": 0,   "cold": 0,   "pests_delta": 0 },
+    "small":     { "storm": 0,   "wind": 0.4, "rain": 0,   "cold": 1.0, "pests_delta": 0 },
+    "big":       { "storm": 1.0, "wind": 1.1, "rain": 0,   "cold": 0,   "pests_delta": 0 },
+    "recurring": { "storm": 0,   "wind": 0,   "rain": 0,   "cold": 0,   "pests_delta": 7 },
+    "cancel":    { "storm": 0,   "wind": 0,   "rain": 0.4, "cold": 0,   "pests_delta": -7 }
   },
-  "model": {
-    "weeks_per_month": 4.345,
-    "essential_reserve_scale": 0.2,
-    "recurring_months_prepaid": 3,
-    "vigor_floor": 4,
-    "vigor_span": 28,
-    "vigor_half": 80,
-    "maturity_income_weight": 75,
-    "skip_vigor_gain": 8,
-    "skip_reserve_restore": 0.5,
-    "warranted_after_clean": 3,
-    "warranted_vigor_scale": 0.35,
-    "note": "A local stand-in until B ports this to Snowflake fake bank. Same keys, replace the numbers."
-  },
-  "buckets": {
-    "minor_max": 20,
-    "moderate_max": 70,
-    "note": "B owns mapping from amount → severity. These are student-scale hints for Checkpoint 1, then freeze."
-  },
-  "essentials": ["tuition", "rent", "groceries", "transit", "phone"],
-  "healthy_saves_for_trophy": 3,
-  "severity_effects": {
-    "minor": { "frost": true, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 0.25 },
-    "moderate": { "frost": false, "hail": true, "lightning": false, "shake": false, "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 0.45 },
-    "major": { "frost": false, "hail": true, "lightning": true, "shake": true, "rain": false, "falling_leaves": true, "pests": false, "drought": 0, "wind": 0.7 },
-    "essential": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.08 },
-    "recurring": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": false, "pests": true, "drought": 0, "wind": 0.15 },
-    "warranted": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": true, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.12 },
-    "skip": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": true, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.12 },
-    "cancel": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": false, "pests": false, "drought": 0, "wind": 0.08 },
-    "drought": { "frost": false, "hail": false, "lightning": false, "shake": false, "rain": false, "falling_leaves": true, "pests": false, "drought": 0.85, "wind": 0.1 }
-  },
-  "demo_buys": [
-    { "id": "coffee", "label": "Coffee run", "amount": 15, "category": "coffee", "severity": "minor" },
-    { "id": "impulse", "label": "Impulse drop", "amount": 60, "category": "impulse", "severity": "moderate" },
-    { "id": "headphones", "label": "Headphones", "amount": 250, "category": "electronics", "severity": "major" },
-    { "id": "subscription", "label": "Campus streaming", "amount": 23, "category": "subscription", "recurring": true, "severity": "recurring" },
-    { "id": "tuition", "label": "Tuition payment", "amount": 800, "category": "tuition", "essential": true, "severity": "essential" }
-  ]
+  "leaves_fall": { "neutral": 0, "small": 12, "big": 34 },
+  "flash_shake_buckets": ["big"]
 }

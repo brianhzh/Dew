@@ -1,3 +1,0 @@
-data: {"text":"Rain on the soil. You kept the money. The tree notices."}
-
-event: done

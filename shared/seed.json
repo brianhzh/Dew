@@ -1,0 +1,27 @@
+{
+  "persona": {
+    "user_id": "demo-1",
+    "monthly_income": 1600,
+    "essentials_monthly": 1250,
+    "savings_target_monthly": 150,
+    "liquid_buffer": 1900,
+    "horizon_months": 48
+  },
+  "goals": [
+    { "goal_id": "g-short", "term": "short", "name": "Reading-week trip", "amount": 400, "progress": 120 },
+    { "goal_id": "g-mid", "term": "mid", "name": "Sublet deposit", "amount": 900, "progress": 150 },
+    { "goal_id": "g-long", "term": "long", "name": "Graduate with a buffer", "amount": 5000, "progress": 480 }
+  ],
+  "plant_state": {
+    "vigor": 72,
+    "baseline": 72,
+    "maturity": 41,
+    "pests": [],
+    "last_event_ts": 0
+  },
+  "subscriptions": [],
+  "decisions": [],
+  "transactions": [],
+  "commitments": [],
+  "counters": { "decision": 100, "commitment": 0, "txn": 0 }
+}
