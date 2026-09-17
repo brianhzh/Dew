@@ -4,6 +4,12 @@ A living plant that *is* your financial future. Log a purchase by voice — *"sp
 
 The growth math is a **block-bootstrap Monte Carlo run in Snowflake (Snowpark) on real Nasdaq market data from the Snowflake Marketplace**, with Claude narration via Cortex. Full details: [`WRITEUP.md`](WRITEUP.md).
 
+Devpost: https://devpost.com/software/dew-ufkqt1 
+
+|  |  |  |
+|:---:|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/3e126d08-1e17-476b-99b2-6760541d2ce2" height="400" /> | <img src="https://github.com/user-attachments/assets/bd2126f0-7374-4ee8-98b4-7e08ebf06d7c" height="400" /> | <img src="https://github.com/user-attachments/assets/df3cb546-d6ba-4403-8d65-51dcfc127c48" height="400" /> |
+
 ## Run
 
 ```bash
